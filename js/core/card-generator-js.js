@@ -1063,7 +1063,7 @@ static async createCard(options = {}) {
         if (typeof KeywordProcessor !== 'undefined') {
           effectLine.innerHTML = KeywordProcessor.processKeywordText(effect.trim());
           
-          // Wrap every word in its own span for better control
+          // Wrap only plain text nodes in spans, preserve existing styled spans
           const textNodes = [];
           const walker = document.createTreeWalker(
             effectLine,
@@ -1074,7 +1074,8 @@ static async createCard(options = {}) {
           
           let node;
           while (node = walker.nextNode()) {
-            if (node.textContent.trim()) {
+            // Only process text nodes that are not already inside styled spans
+            if (node.textContent.trim() && !node.parentElement.classList.contains('custom-color') && !node.parentElement.classList.contains('key-text')) {
               textNodes.push(node);
             }
           }

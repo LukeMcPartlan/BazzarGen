@@ -40,26 +40,8 @@ class KeywordProcessor {
     processedText = this.processColorCodes(processedText);
     
     // Process LONGER patterns FIRST to avoid conflicts
-    processedText = processedText.replace(/\/cd/g, '[COOLDOWN_ICON]');  // Process /cd before /c
-    processedText = processedText.replace(/\/cr/g, '[CRIT_ICON]');      // Process /cr before /c
-    processedText = processedText.replace(/\/he/g, '[HEAL_ICON]');      // Process /he before /h
-    processedText = processedText.replace(/\/sh/g, '[SHIELD_ICON]');    // Process /sh before /s
-    processedText = processedText.replace(/\/mh/g, '[MAXHEALTH_ICON]'); // Process /mh before /h
-    processedText = processedText.replace(/\/de/g, '[DESTROY_ICON]');   // Process /de before /d
-    processedText = processedText.replace(/\/fl/g, '[FLYING_ICON]');    // Process /fl before /f
-    
-    // Then process single-letter patterns
-    processedText = processedText.replace(/\/s/g, '[SLOW_ICON]');
-    processedText = processedText.replace(/\/h/g, '[HASTE_ICON]');
-    processedText = processedText.replace(/\/r/g, '[REGEN_ICON]');
-    processedText = processedText.replace(/\/p/g, '[POISON_ICON]');
-    processedText = processedText.replace(/\/b/g, '[BURN_ICON]');
-    processedText = processedText.replace(/\/c/g, '[CHARGE_ICON]');
-    processedText = processedText.replace(/\/d/g, '[DAMAGE_ICON]');
-    processedText = processedText.replace(/\/f/g, '[FREEZE_ICON]');
-    processedText = processedText.replace(/\/l/g, '[LIFESTEAL_ICON]');
-    processedText = processedText.replace(/\/v/g, '[VALUE_ICON]');
-    processedText = processedText.replace(/\/t/g, '[TRANSFORM_ICON]');
+    // Don't process shortcuts inside angle brackets (HTML-like content)
+    processedText = this.processShortcutsOutsideBrackets(processedText);
     
     // Create a regex pattern that matches all keywords (case insensitive)
     const keywords = Object.keys(this.keywordRules);
@@ -100,13 +82,55 @@ class KeywordProcessor {
    */
   static processColorCodes(text) {
     // Match /c followed by 6 hex digits and capture only the next word (not multiple words)
-    const colorPattern = /\/c([0-9a-fA-F]{6})\s+([^\s]+)/g;
+    // Use word boundary to ensure we only match complete words
+    const colorPattern = /\/c([0-9a-fA-F]{6})\s+([^\s<>&]+)/g;
     
     return text.replace(colorPattern, (match, hexCode, coloredText) => {
       // Ensure hex code starts with # and is lowercase
       const normalizedHex = '#' + hexCode.toLowerCase();
       return `<span style="color: ${normalizedHex};" class="custom-color">${coloredText}</span>`;
     });
+  }
+
+  /**
+   * Process shortcuts outside of angle brackets to avoid processing HTML-like content
+   * @param {string} text - The text to process
+   * @returns {string} Text with shortcuts processed
+   */
+  static processShortcutsOutsideBrackets(text) {
+    // Split text by angle brackets to separate HTML-like content from regular text
+    const parts = text.split(/(<[^>]*>)/);
+    
+    for (let i = 0; i < parts.length; i += 2) {
+      // Only process even-indexed parts (not inside angle brackets)
+      let part = parts[i];
+      
+      // Process LONGER patterns FIRST to avoid conflicts
+      part = part.replace(/\/cd/g, '[COOLDOWN_ICON]');  // Process /cd before /c
+      part = part.replace(/\/cr/g, '[CRIT_ICON]');      // Process /cr before /c
+      part = part.replace(/\/he/g, '[HEAL_ICON]');      // Process /he before /h
+      part = part.replace(/\/sh/g, '[SHIELD_ICON]');    // Process /sh before /s
+      part = part.replace(/\/mh/g, '[MAXHEALTH_ICON]'); // Process /mh before /h
+      part = part.replace(/\/de/g, '[DESTROY_ICON]');   // Process /de before /d
+      part = part.replace(/\/fl/g, '[FLYING_ICON]');    // Process /fl before /f
+      
+      // Then process single-letter patterns
+      part = part.replace(/\/s/g, '[SLOW_ICON]');
+      part = part.replace(/\/h/g, '[HASTE_ICON]');
+      part = part.replace(/\/r/g, '[REGEN_ICON]');
+      part = part.replace(/\/p/g, '[POISON_ICON]');
+      part = part.replace(/\/b/g, '[BURN_ICON]');
+      part = part.replace(/\/c/g, '[CHARGE_ICON]');
+      part = part.replace(/\/d/g, '[DAMAGE_ICON]');
+      part = part.replace(/\/f/g, '[FREEZE_ICON]');
+      part = part.replace(/\/l/g, '[LIFESTEAL_ICON]');
+      part = part.replace(/\/v/g, '[VALUE_ICON]');
+      part = part.replace(/\/t/g, '[TRANSFORM_ICON]');
+      
+      parts[i] = part;
+    }
+    
+    return parts.join('');
   }
 
   /**
