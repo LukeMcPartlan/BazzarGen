@@ -99,8 +99,8 @@ class KeywordProcessor {
    * @returns {string} Text with colored spans
    */
   static processColorCodes(text) {
-    // Match /c followed by 6 hex digits and capture the text until the next space
-    const colorPattern = /\/c([0-9a-fA-F]{6})\s+([^\s]+(?:\s+[^\s]+)*?)(?=\s|$)/g;
+    // Match /c followed by 6 hex digits and capture only the next word (not multiple words)
+    const colorPattern = /\/c([0-9a-fA-F]{6})\s+([^\s]+)/g;
     
     return text.replace(colorPattern, (match, hexCode, coloredText) => {
       // Ensure hex code starts with # and is lowercase

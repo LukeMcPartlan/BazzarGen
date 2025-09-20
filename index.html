@@ -407,6 +407,11 @@
         <div class="shortcut-item"><span class="shortcut-key">/fl</span> <img src="images/keywords/keytext/flying.png" alt="flying" class="keyword-preview"> <span style="color: #f4d021; font-weight: bold;" class="key-text">flying</span></div>
         <div class="shortcut-item"><span class="shortcut-key">/mh</span> <img src="images/keywords/keytext/maxhealth.png" alt="maxhealth" class="keyword-preview"> <span style="color: rgb(143, 234, 49); font-weight: bold;" class="key-text">maxhealth</span></div>
               </div>
+              
+              <!-- COLOR PICKER TOOL -->
+              <div id="colorPickerTool" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(218, 165, 32, 0.3);">
+                  <!-- Color picker will be dynamically inserted here -->
+              </div>
           </div>
       </div>
 
@@ -534,8 +539,15 @@
   <!-- Page-specific module (load last) -->
   <script src="js/pages/index-js.js"></script>
 
-
     <script>
+// Initialize the page when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize color picker
+  if (typeof IndexPageController !== 'undefined' && typeof IndexPageController.setupColorPicker === 'function') {
+    IndexPageController.setupColorPicker();
+  }
+});
+
 setTimeout(() => {
   console.log('SupabaseClient loaded:', typeof SupabaseClient !== 'undefined');
   console.log('SupabaseClient ready:', SupabaseClient?.isReady?.());
